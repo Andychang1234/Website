@@ -274,7 +274,7 @@
             // 計算下一個5月1日紀念日
             const nextAnniversary = getNextMay1(startDate);
             const daysToNext = Math.floor((nextAnniversary.getTime() - today.getTime()) / (1000 * 3600 * 24));
-            const anniversaryYear = Math.floor((nextAnniversary.getFullYear() - startDate.getFullYear())) + 1;
+            const anniversaryYear = nextAnniversary.getFullYear() - startDate.getFullYear();
             
             if (daysToNext > 0) {
                 document.getElementById('nextAnniversary').innerHTML = `
@@ -332,7 +332,11 @@
                 // 跳過開始拍拖年份之前的5月1日
                 if (anniversaryDate < startDate) continue;
                 
-                const anniversaryYear = year - startYear + 1;
+                const anniversaryYear = year - startYear; // 修正：移除 +1
+                
+                // 如果是開始拍拖的同一年，跳過（因為還沒滿一年）
+                if (anniversaryYear === 0) continue;
+                
                 const isPast = anniversaryDate < new Date();
                 const isToday = anniversaryDate.toDateString() === new Date().toDateString();
                 
