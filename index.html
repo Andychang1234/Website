@@ -332,7 +332,7 @@
                 // 跳過開始拍拖年份之前的5月1日
                 if (anniversaryDate < startDate) continue;
                 
-                const anniversaryYear = year - startYear; // 修正：移除 +1
+                const anniversaryYear = year - startYear; // 
                 
                 // 如果是開始拍拖的同一年，跳過（因為還沒滿一年）
                 if (anniversaryYear === 0) continue;
@@ -363,7 +363,8 @@
         }
 
         // 設定今天的日期作為預設值（僅供測試）
-        document.getElementById('startDate').valueAsDate = new Date(2023, 4, 1); // 預設為2023年5月1日
+        document.getElementById('startDate').valueAsDate = new Date(2018, 5, 1); // 預設為2018年5月1日
     </script>
 </body>
 </html>
+
