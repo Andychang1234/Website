@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>情侶共同記賬本（動漫風）</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800&family=Baloo+2:wght@600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#fff6fb;
+      --panel:#ffffffcc;
+      --primary:#ff71a6;   /* 粉紅 */
+      --primary-2:#ff9cc3; /* 粉紅亮 */
+      --accent:#7dd3fc;    /* 天藍 */
+      --mint:#86efac;      /* 薄荷 */
+      --lav:#c7b8ff;       /* 淡紫 */
+      --ink:#412e4d;
+      --muted:#6a5b73;
+      --chip:#ffe4ef;
+      --danger:#ef4444;
+      --good:#16a34a;
+      --card:#fff0f6;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: radial-gradient(1200px 1200px at 20% -10%, #ffe6f4 0%, #fff6fb 40%, #ffffff 75%),
+                  radial-gradient(900px 900px at 120% 10%, #eaf6ff 0%, #fff 60%);
+      font-family: 'Nunito', system-ui, -apple-system, "Segoe UI", Roboto, "PingFang HK", "Noto Sans CJK", sans-serif;
+      color:var(--ink);
+      overflow-x:hidden;
+    }
+    header{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(8px);
+      background: #ffffffaa;
+      border-bottom: 2px dashed #ffd1e5;
+    }
+    .wrap{max-width:1000px;margin:0 auto;padding:12px 16px}
+    .brand{
+      display:flex;align-items:center;gap:12px;
+    }
+    .brand .logo{
+      width:42px;height:42px;border-radius:50%;
+      background: conic-gradient(from 210deg, var(--primary), var(--accent), var(--lav), var(--primary));
+      position:relative; box-shadow:0 6px 16px #ff71a62a;
+    }
+    .brand .logo::after{
+      content:"❤"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      color:white; font-size:20px; text-shadow:0 1px 3px #00000030;
+    }
+    h1{font-family:"Baloo 2", cursive; margin:0; font-size:22px; letter-spacing:0.3px}
+    .sub{color:var(--muted); font-size:13px; margin-top:-2px}
+    .tabs{margin-top:10px; display:flex; gap:8px; flex-wrap:wrap}
+    .tab{
+      background:var(--chip); color:#7a2a49;
+      border:2px solid #ffc2dd; padding:8px 12px; border-radius:999px; cursor:pointer; user-select:none;
+      font-weight:800; transition:.2s; font-size:14px;
+    }
+    .tab.active{ background:var(--primary); border-color:#ff9cc3; color:white; box-shadow:0 6px 14px #ff71a62d }
+    .grid{
+      display:grid; gap:16px; grid-template-columns: 1fr;
+    }
+    @media(min-width:860px){
+      .grid{ grid-template-columns: 1.2fr 1fr }
+    }
+    .panel{
+      background:var(--panel);
+      border:2px dashed #ffd3e7;
+      border-radius:18px; padding:16px;
+      box-shadow:0 12px 30px #ff6fab1c;
+      position:relative; overflow:hidden;
+    }
+    .panel h3{
+      margin:0 0 10px 0; font-size:18px; font-family:"Baloo 2"; color:#7a3253;
+    }
+    .row{display:flex; gap:10px; flex-wrap:wrap}
+    .row > *{flex:1 1 160px}
+    label{font-weight:800; font-size:13px; color:#6f2c4d}
+    input, select{
+      width:100%; padding:12px 12px; border-radius:12px;
+      border:2px solid #ffd3e7; background:#fff; font-size:14px;
+      outline:none; transition:.2s;
+    }
+    input:focus, select:focus{ border-color:var(--primary); box-shadow:0 6px 14px #ff71a61d }
+    .btn{
+      background:var(--primary); color:white; border:none; padding:10px 14px; border-radius:12px;
+      font-weight:800; cursor:pointer; box-shadow:0 8px 18px #ff71a633;
+      transition:.15s; font-size:14px;
+    }
+    .btn.alt{ background:var(--accent); color:#123a53 }
+    .btn.ghost{ background:#fff; color:#7a2a49; border:2px solid #ffc2dd }
+    .btn.danger{ background:var(--danger) }
+    .chip{
+      display:inline-flex; align-items:center; gap:8px; background:var(--card);
+      padding:8px 10px; border-radius:12px; border:2px dashed #ffc8dd; font-weight:800; color:#7a2a49; font-size:13px;
+    }
+    .balance{
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    }
+    .balance .num{ font-size:28px; font-weight:800 }
+    .balance.negative .num{ color:var(--danger) }
+    .notice{
+      background:#fff3f5; border:2px dashed #ffb8cc; color:#7a2a49; border-radius:14px; padding:10px 12px; font-weight:800; font-size:13px;
+    }
+    .list{ display:flex; flex-direction:column; gap:10px; max-height:380px; overflow:auto; padding-right:4px }
+    .item{
+      background:#fff; border:2px dashed #ffd3e7; border-radius:14px; padding:10px 12px;
+      display:grid; grid-template-columns: 1fr auto; gap:6px; align-items:center;
+    }
+    .item .meta{ font-size:12px; color:#8b6a86 }
+    .item .amt{ font-weight:900 }
+    .pill{ display:inline-block; padding:4px 8px; border-radius:999px; background:#ffe4ef; font-size:12px; font-weight:800; color:#7a2a49 }
+    .sum-row{ display:flex; justify-content:space-between; gap:10px; padding:6px 4px; font-weight:800; color:#6a5b73 }
+    .chart{
+      display:flex; gap:10px; align-items:flex-end; padding:10px; border-radius:14px; background:#fff; border:2px dashed #ffd3e7; min-height:120px;
+    }
+    .bar{ width:28px; background:linear-gradient(180deg, var(--primary-2), var(--primary)); border-radius:10px 10px 0 0; position:relative }
+    .bar label{ position:absolute; bottom:100%; transform:translateY(-6px); font-size:12px; font-weight:900; color:#7a2a49; white-space:nowrap }
+    .footer{font-size:12px; color:#a28aa8; text-align:center; padding:30px 0}
+    /* 漫畫角色背景（可換圖） */
+    .bg-fig{
+      position:fixed; inset:0; pointer-events:none; z-index:-1; overflow:hidden;
+    }
+    .fig{
+      position:absolute; opacity:.10; filter: blur(0px) saturate(1.1);
+      background-size:contain; background-repeat:no-repeat; background-position:center;
+    }
+    /* 以 emoji 暫代角色剪影，可換成本地 PNG/SVG：background-image:url('./your-image.png') */
+    .fig.a{ left:-4%; bottom:-2%; width:46vmin; height:46vmin; background-image:linear-gradient(#ffc0da, #ffd9e9); mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500"><text x="0" y="400" font-size="380">🧑‍🎤</text></svg>') center/contain no-repeat; -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500"><text x="0" y="400" font-size="380">🧑‍🎤</text></svg>') center/contain no-repeat; }
+    .fig.b{ right:-6%; top:-4%; width:54vmin; height:54vmin; background-image:linear-gradient(#a8ddff, #d7f1ff); mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500"><text x="0" y="400" font-size="380">🧜‍♀️</text></svg>') center/contain no-repeat; -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500"><text x="0" y="400" font-size="380">🧜‍♀️</text></svg>') center/contain no-repeat; }
+    /* 漂浮泡泡 */
+    .bubble{
+      position:fixed; border-radius:50%; opacity:.18; z-index:-1; animation: float 8s ease-in-out infinite;
+      background: radial-gradient(circle at 30% 30%, #fff, #ffd9ec 60%, #ffc2dd 100%);
+      box-shadow: inset 0 0 30px #ffffffcc;
+    }
+    .bubble:nth-child(1){ width:120px;height:120px; left:10%; top:70%; animation-delay:-2s}
+    .bubble:nth-child(2){ width:180px;height:180px; left:40%; top:78%; animation-delay:-3s}
+    .bubble:nth-child(3){ width:90px;height:90px; left:75%; top:72%; animation-delay:-5s}
+    @keyframes float {
+      0%,100%{ transform:translateY(0) }
+      50%{ transform:translateY(-18px) }
+    }
+    .helper{font-size:12px; color:#8b6a86}
+    .inline{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+    .tiny{font-size:11px}
+  </style>
+</head>
+<body>
+  <div class="bg-fig">
+    <div class="fig a"></div>
+    <div class="fig b"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+  </div>
+
+  <header>
+    <div class="wrap">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>
+          <h1>情侶共同記賬本</h1>
+          <div class="sub">動漫卡通風・獨立幣種賬本・共同資金池・超支提醒</div>
+        </div>
+      </div>
+      <div class="tabs" id="tabs">
+        <div class="tab active" data-tab="spend">新增花費</div>
+        <div class="tab" data-tab="topup">湊錢加值</div>
+        <div class="tab" data-tab="records">紀錄總覽</div>
+        <div class="tab" data-tab="analysis">月度分析</div>
+        <div class="tab" data-tab="settings">設定與備份</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap" style="padding-top:12px; padding-bottom:30px;">
+    <section id="spend" class="grid view">
+      <div class="panel">
+        <h3>新增花費</h3>
+        <div class="row">
+          <div>
+            <label>幣種</label>
+            <select id="currencySpend"></select>
+          </div>
+          <div>
+            <label>類別</label>
+            <div class="inline">
+              <select id="category"></select>
+              <button class="btn ghost" id="addCategoryBtn">＋新增類別</button>
+            </div>
+            <div class="helper tiny">預設類別可用，也可自訂新增；未來可再增加。</div>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>名稱</label>
+            <input id="name" placeholder="例如：晚餐、電影票、奶茶" />
+          </div>
+          <div>
+            <label>金額</label>
+            <input id="amount" type="number" step="0.01" placeholder="例如：120" />
+          </div>
+        </div>
+        <div class="inline" style="margin-top:6px">
+          <button class="btn" id="addSpend">加入花費</button>
+          <div class="helper">小貼士：花費會直接從該幣種的資金池扣除。</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>資金池狀態</h3>
+        <div class="row">
+          <div>
+            <label>選擇幣種</label>
+            <select id="currencyBalance"></select>
+          </div>
+        </div>
+        <div id="balanceBox" class="balance" style="margin-top:8px">
+          <span class="chip">共同資金池</span>
+          <span class="num" id="balanceNum">0</span>
+        </div>
+        <div id="negNotice" class="notice" style="display:none; margin-top:10px">
+          ⚠️ 資金池為負數，表示需要「湊錢」補足喔！
+        </div>
+      </div>
+    </section>
+
+    <section id="topup" class="grid view" style="display:none">
+      <div class="panel">
+        <h3>湊錢加值</h3>
+        <div class="row">
+          <div>
+            <label>幣種</label>
+            <select id="currencyTopup"></select>
+          </div>
+          <div>
+            <label>金額</label>
+            <input id="topupAmount" type="number" step="0.01" placeholder="例如：200" />
+          </div>
+          <div>
+            <label>備註（可選）</label>
+            <input id="topupNote" placeholder="例如：本月補貼、生日基金…" />
+          </div>
+        </div>
+        <div class="inline" style="margin-top:6px">
+          <button class="btn alt" id="addTopup">加入湊錢</button>
+          <div class="helper">加值後，該幣種資金池會增加。</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>快速查看資金池</h3>
+        <div class="row">
+          <div>
+            <label>幣種</label>
+            <select id="currencyQuick"></select>
+          </div>
+        </div>
+        <div class="balance" id="quickBalance" style="margin-top:8px">
+          <span class="chip">共同資金池</span>
+          <span class="num" id="quickBalanceNum">0</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="records" class="view" style="display:none">
+      <div class="panel">
+        <h3>紀錄總覽</h3>
+        <div class="row">
+          <div>
+            <label>幣種</label>
+            <select id="currencyRecords"></select>
+          </div>
+          <div>
+            <label>月份</label>
+            <input id="recordsMonth" type="month" />
+          </div>
+          <div>
+            <label>類型</label>
+            <select id="recordsType">
+              <option value="all">全部</option>
+              <option value="spend">花費</option>
+              <option value="topup">湊錢</option>
+            </select>
+          </div>
+        </div>
+        <div class="list" id="recordsList" style="margin-top:10px"></div>
+      </div>
+    </section>
+
+    <section id="analysis" class="view" style="display:none">
+      <div class="panel">
+        <h3>月度分析</h3>
+        <div class="row">
+          <div>
+            <label>幣種</label>
+            <select id="currencyAnalysis"></select>
+          </div>
+          <div>
+            <label>月份</label>
+            <input id="analysisMonth" type="month" />
+          </div>
+        </div>
+        <div id="analysisBox" style="margin-top:12px">
+          <div class="sum-row"><span>總花費</span><span id="sumTotal">0</span></div>
+          <div class="sum-row"><span>平均每日花費</span><span id="avgPerDay">0</span></div>
+          <div class="sum-row"><span>Top 3 類別</span><span id="top3">—</span></div>
+          <div style="margin-top:10px">
+            <div class="chip">各類別花費（長條圖）</div>
+            <div class="chart" id="chart"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="settings" class="grid view" style="display:none">
+      <div class="panel">
+        <h3>類別與幣種</h3>
+        <div class="row">
+          <div>
+            <label>現有類別</label>
+            <div id="categoryList" class="list" style="max-height:180px"></div>
+          </div>
+          <div>
+            <label>新增類別</label>
+            <div class="inline">
+              <input id="newCategoryName" placeholder="例如：旅遊、交通…" />
+              <button class="btn" id="saveCategory">新增</button>
+            </div>
+          </div>
+        </div>
+        <hr style="border:none; border-top:2px dashed #ffd3e7; margin:16px 0">
+        <div class="row">
+          <div>
+            <label>現有幣種</label>
+            <div id="currencyList" class="list" style="max-height:180px"></div>
+          </div>
+          <div>
+            <label>新增幣種</label>
+            <div class="inline">
+              <input id="newCurrencyCode" placeholder="例如：TWD、USD…" />
+              <button class="btn alt" id="saveCurrency">新增幣種</button>
+            </div>
+            <div class="helper tiny">每個幣種會有獨立的資金池與紀錄。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>資料備份與安全</h3>
+        <div class="inline">
+          <button class="btn ghost" id="exportBtn">匯出全部資料</button>
+          <input id="importFile" type="file" accept="application/json" style="display:none" />
+          <button class="btn ghost" id="importBtn">匯入資料</button>
+          <button class="btn danger" id="resetBtn">清除所有資料</button>
+        </div>
+        <div class="helper" style="margin-top:8px">
+          匯出會下載一個 JSON 檔，可留作備份；匯入會覆蓋現有資料（請小心）。
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="footer">❤ 祝你們甜甜蜜蜜，每一筆都記下共同的日常</div>
+
+  <script>
+    // 初始資料
+    const DEFAULT_CATEGORIES = ["正餐","家長聚餐","朋友聚餐","小食","甜品","手搖飲品","其他飲品","娛樂","玩具","其他"];
+    const DEFAULT_CURRENCIES = ["HKD","CNY","JPY"];
+    const LS_KEY = "couple_ledger_v1";
+
+    const $ = (s)=>document.querySelector(s);
+    const $$ = (s)=>document.querySelectorAll(s);
+
+    const state = {
+      categories: [],
+      currencies: [],
+      books: {}, // { HKD: { balance:0, tx:[{id,type,ts,category,name,amount}] }, ... }
+    };
+
+    function load(){
+      const raw = localStorage.getItem(LS_KEY);
+      if(raw){
+        Object.assign(state, JSON.parse(raw));
+      }else{
+        state.categories = [...DEFAULT_CATEGORIES];
+        state.currencies = [...DEFAULT_CURRENCIES];
+        state.books = {};
+        state.currencies.forEach(c=> state.books[c]={ balance:0, tx:[] });
+        save();
+      }
+    }
+    function save(){
+      localStorage.setItem(LS_KEY, JSON.stringify(state));
+      refreshAllUI();
+    }
+
+    function refreshAllUI(){
+      fillCurrencies();
+      fillCategories();
+      updateBalanceViews();
+      renderCategoryList();
+      renderCurrencyList();
+      renderRecords();
+      renderAnalysis();
+    }
+
+    function fillCurrencies(){
+      const selects = ["currencySpend","currencyBalance","currencyTopup","currencyQuick","currencyRecords","currencyAnalysis"]
+        .map(id=>document.getElementById(id));
+      selects.forEach(sel=>{
+        const current = sel.value;
+        sel.innerHTML = "";
+        state.currencies.forEach(c=>{
+          const opt = document.createElement("option");
+          opt.value = c; opt.textContent = c;
+          sel.appendChild(opt);
+        });
+        if(state.currencies.includes(current)) sel.value = current;
+      });
+    }
+
+    function fillCategories(){
+      const sel = $("#category");
+      const current = sel.value;
+      sel.innerHTML = "";
+      state.categories.forEach(cat=>{
+        const opt = document.createElement("option");
+        opt.value = cat; opt.textContent = cat;
+        sel.appendChild(opt);
+      });
+      if(state.categories.includes(current)) sel.value = current;
+    }
+
+    function getSelectedCurrency(id){
+      return document.getElementById(id).value || state.currencies[0];
+    }
+
+    function fmt(n, cur){
+      const val = Number(n||0);
+      return `${cur} ${val.toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2})}`;
+    }
+
+    function updateBalanceViews(){
+      const c1 = getSelectedCurrency("currencyBalance");
+      const c2 = getSelectedCurrency("currencyQuick");
+      const b1 = state.books[c1]?.balance ?? 0;
+      const b2 = state.books[c2]?.balance ?? 0;
+
+      const box = $("#balanceBox");
+      $("#balanceNum").textContent = fmt(b1, c1);
+      box.classList.toggle("negative", b1 < 0);
+      $("#negNotice").style.display = b1 < 0 ? "" : "none";
+
+      $("#quickBalanceNum").textContent = fmt(b2, c2);
+    }
+
+    function addSpend(){
+      const currency = getSelectedCurrency("currencySpend");
+      const category = $("#category").value.trim();
+      const name = $("#name").value.trim();
+      const amount = parseFloat($("#amount").value);
+
+      if(!currency){ alert("請先選擇幣種"); return; }
+      if(!category){ alert("請選擇類別"); return; }
+      if(!name){ alert("請輸入名稱"); return; }
+      if(!(amount>0)){ alert("金額需為正數"); return; }
+
+      const book = state.books[currency] || (state.books[currency]={ balance:0, tx:[] });
+      book.tx.push({
+        id: crypto.randomUUID(),
+        type: "spend",
+        ts: Date.now(),
+        currency,
+        category,
+        name,
+        amount
+      });
+      book.balance -= amount;
+
+      save();
+      $("#name").value = "";
+      $("#amount").value = "";
+      alert(book.balance < 0 ? "已加入花費。提醒：資金池為負數，記得湊錢！" : "已加入花費！");
+    }
+
+    function addTopup(){
+      const currency = getSelectedCurrency("currencyTopup");
+      const amount = parseFloat($("#topupAmount").value);
+      const note = $("#topupNote").value.trim();
+
+      if(!currency){ alert("請先選擇幣種"); return; }
+      if(!(amount>0)){ alert("金額需為正數"); return; }
+
+      const book = state.books[currency] || (state.books[currency]={ balance:0, tx:[] });
+      book.tx.push({
+        id: crypto.randomUUID(),
+        type: "topup",
+        ts: Date.now(),
+        currency,
+        category: "湊錢",
+        name: note || "湊錢加值",
+        amount
+      });
+      book.balance += amount;
+
+      save();
+      $("#topupAmount").value = "";
+      $("#topupNote").value = "";
+      alert("已加入湊錢！");
+    }
+
+    function renderRecords(){
+      const cur = getSelectedCurrency("currencyRecords");
+      const month = $("#recordsMonth").value; // yyyy-mm
+      const type = $("#recordsType").value;
+      const list = $("#recordsList");
+      list.innerHTML = "";
+
+      const book = state.books[cur];
+      if(!book){ list.innerHTML = "<div class='helper'>尚無紀錄</div>"; return; }
+
+      let tx = [...book.tx].sort((a,b)=>b.ts-a.ts);
+      if(month){
+        tx = tx.filter(t=>{
+          const d = new Date(t.ts);
+          const ym = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+          return ym===month;
+        });
+      }
+      if(type!=="all") tx = tx.filter(t=>t.type===type);
+
+      if(tx.length===0){ list.innerHTML = "<div class='helper'>此條件下沒有紀錄</div>"; return; }
+
+      tx.forEach(t=>{
+        const d = new Date(t.ts);
+        const date = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+        const el = document.createElement("div");
+        el.className="item";
+        el.innerHTML = `
+          <div>
+            <div><span class="pill">${t.type==="spend"?"花費":"湊錢"}</span> ${t.name || ""}</div>
+            <div class="meta">${t.category} ・ ${date}</div>
+          </div>
+          <div class="amt" style="color:${t.type==="spend"?"#ef4444":"#16a34a"}">${fmt(t.amount, cur)}</div>
+        `;
+        list.appendChild(el);
+      });
+    }
+
+    function renderAnalysis(){
+      const cur = getSelectedCurrency("currencyAnalysis");
+      const month = $("#analysisMonth").value;
+      const box = $("#analysisBox");
+      const chart = $("#chart");
+      chart.innerHTML = "";
+
+      const book = state.books[cur];
+      if(!book){ box.style.display="none"; return; }
+      box.style.display="";
+
+      let tx = book.tx.filter(t=>t.type==="spend");
+      if(month){
+        tx = tx.filter(t=>{
+          const d = new Date(t.ts);
+          const ym = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+          return ym===month;
+        });
+      }
+
+      const sum = tx.reduce((s,t)=>s+t.amount,0);
+      $("#sumTotal").textContent = fmt(sum, cur);
+
+      // 平均每日：以該月份實際出現的日期數計算
+      let days=0;
+      if(tx.length>0){
+        const set = new Set(tx.map(t=> new Date(t.ts).getDate()));
+        days = set.size;
+      }
+      const avg = days? (sum/days):0;
+      $("#avgPerDay").textContent = fmt(avg, cur);
+
+      // 按類別匯總
+      const byCat = {};
+      tx.forEach(t=> byCat[t.category]=(byCat[t.category]||0)+t.amount);
+      const sorted = Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
+
+      // Top 3 類別
+      const top3 = sorted.slice(0,3).map(([k,v])=>`${k} ${v.toFixed(0)}`).join("、") || "—";
+      $("#top3").textContent = top3;
+
+      // 繪製簡易長條圖（相對值）
+      const max = Math.max(1, ...sorted.map(x=>x[1]));
+      sorted.forEach(([k,v])=>{
+        const bar = document.createElement("div");
+        bar.className = "bar";
+        bar.style.height = `${Math.max(6, Math.round(v/max*160))}px`;
+        bar.title = `${k}：${fmt(v, cur)}`;
+        const lab = document.createElement("label");
+        lab.textContent = k;
+        bar.appendChild(lab);
+        chart.appendChild(bar);
+      });
+    }
+
+    function renderCategoryList(){
+      const box = $("#categoryList");
+      box.innerHTML = "";
+      state.categories.forEach(cat=>{
+        const el = document.createElement("div");
+        el.className="item";
+        el.innerHTML = `<div>${cat}</div><div><button class="btn ghost tiny-btn" data-del-cat="${cat}">刪除</button></div>`;
+        box.appendChild(el);
+      });
+      box.querySelectorAll("[data-del-cat]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const cat = btn.getAttribute("data-del-cat");
+          if(!confirm(`確定刪除類別「${cat}」嗎？（不會刪除歷史紀錄）`)) return;
+          state.categories = state.categories.filter(c=>c!==cat);
+          save();
+        });
+      });
+    }
+
+    function renderCurrencyList(){
+      const box = $("#currencyList");
+      box.innerHTML = "";
+      state.currencies.forEach(cur=>{
+        const el = document.createElement("div");
+        el.className="item";
+        el.innerHTML = `<div>${cur}</div><div><button class="btn ghost tiny-btn" data-del-cur="${cur}">刪除</button></div>`;
+        box.appendChild(el);
+      });
+      box.querySelectorAll("[data-del-cur]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const cur = btn.getAttribute("data-del-cur");
+          if(!confirm(`確定刪除幣種「${cur}」嗎？（將同時刪除該幣種資金池與紀錄）`)) return;
+          state.currencies = state.currencies.filter(c=>c!==cur);
+          delete state.books[cur];
+          save();
+        });
+      });
+    }
+
+    // 事件繫結
+    function bind(){
+      // 標籤切換
+      $$("#tabs .tab").forEach(t=>{
+        t.addEventListener("click", ()=>{
+          $$("#tabs .tab").forEach(x=>x.classList.remove("active"));
+          t.classList.add("active");
+          const tab = t.getAttribute("data-tab");
+          $$(".view").forEach(v=> v.style.display = (v.id===tab)?"":"none");
+          if(tab==="spend"||tab==="topup") updateBalanceViews();
+          if(tab==="records") renderRecords();
+          if(tab==="analysis") renderAnalysis();
+        });
+      });
+
+      // 選單事件
+      ["currencyBalance","currencyQuick"].forEach(id=>{
+        document.getElementById(id).addEventListener("change", updateBalanceViews);
+      });
+      ["currencyRecords","recordsMonth","recordsType"].forEach(id=>{
+        document.getElementById(id).addEventListener("change", renderRecords);
+      });
+      ["currencyAnalysis","analysisMonth"].forEach(id=>{
+        document.getElementById(id).addEventListener("change", renderAnalysis);
+      });
+
+      // 功能按鈕
+      $("#addSpend").addEventListener("click", addSpend);
+      $("#addTopup").addEventListener("click", addTopup);
+      $("#addCategoryBtn").addEventListener("click", ()=>{
+        const name = prompt("輸入新類別名稱：")?.trim();
+        if(!name) return;
+        if(state.categories.includes(name)){ alert("此類別已存在"); return; }
+        state.categories.push(name);
+        save();
+      });
+
+      // 設定－新增
+      $("#saveCategory").addEventListener("click", ()=>{
+        const name = $("#newCategoryName").value.trim();
+        if(!name){ alert("請輸入類別名稱"); return; }
+        if(state.categories.includes(name)){ alert("此類別已存在"); return; }
+        state.categories.push(name);
+        $("#newCategoryName").value="";
+        save();
+      });
+      $("#saveCurrency").addEventListener("click", ()=>{
+        const code = $("#newCurrencyCode").value.trim().toUpperCase();
+        if(!code){ alert("請輸入幣種代碼"); return; }
+        if(state.currencies.includes(code)){ alert("此幣種已存在"); return; }
+        state.currencies.push(code);
+        state.books[code] = { balance:0, tx:[] };
+        $("#newCurrencyCode").value="";
+        save();
+      });
+
+      // 備份
+      $("#exportBtn").addEventListener("click", ()=>{
+        const blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        const now = new Date();
+        const ts = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+        a.download = `couple-ledger-${ts}.json`;
+        a.click();
+      });
+      $("#importBtn").addEventListener("click", ()=> $("#importFile").click());
+      $("#importFile").addEventListener("change", (e)=>{
+        const file = e.target.files[0]; if(!file) return;
+        const fr = new FileReader();
+        fr.onload = ()=>{
+          try{
+            const data = JSON.parse(fr.result);
+            if(!confirm("匯入將覆蓋現有資料，確定要匯入嗎？")) return;
+            localStorage.setItem(LS_KEY, JSON.stringify(data));
+            location.reload();
+          }catch(err){
+            alert("匯入失敗：不是有效的 JSON 檔");
+          }
+        };
+        fr.readAsText(file);
+      });
+      $("#resetBtn").addEventListener("click", ()=>{
+        if(!confirm("確定清除所有資料嗎？此動作無法還原。")) return;
+        localStorage.removeItem(LS_KEY);
+        location.reload();
+      });
+
+      // 初始化月份為本月
+      const mm = `${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
+      const monthInputs = ["recordsMonth","analysisMonth"];
+      monthInputs.forEach(id=>{
+        const el = document.getElementById(id);
+        el.value = mm;
+      });
+    }
+
+    // 啟動
+    load();
+    bind();
+    refreshAllUI();
+  </script>
+</body>
+</html>
